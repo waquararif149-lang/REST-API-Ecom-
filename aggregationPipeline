@@ -1,0 +1,28 @@
+db.products.aggregate([
+    //stage 1 crate document for ratings
+    {
+        $unwind:"$ratings"
+    },
+    //stage2 group and finding avg rating
+    {
+        $group:{_id:"name",avgrating:{$avg:"ratings.rating"}}
+    }
+])
+
+//project name of product and count fo rating 
+db.products.aggregate([
+    // 1. Project name of product, and countOfRating
+    {
+        $project:{name:1, countOfRating:{
+            $cond:{if:{$isArray:"$ratings"}
+            ,then:{$size:"$ratings"}, else:0}}}
+    },
+    {
+        // Stage 2: Sort the collection
+        $sort:{countOfRating:-1}
+    },
+    {
+        // 3. Limit to just 1 item in result
+        $limit:1
+    }
+])

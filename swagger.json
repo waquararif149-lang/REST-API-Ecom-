@@ -1,0 +1,179 @@
+{
+    "swagger":"2.0",
+    "info":{
+        "version":"1.0.0",
+        "description":"API For Ecom Application",
+        "title":"Ecom-app"
+    },
+    "host":"localhost:3000",
+    "securityDefinitions":{
+        "JWT":{
+            "in":"header",
+            "name":"Authorization",
+            "type":"apiKey"
+        }
+    },
+    "paths":{
+        "/api/products":{
+            "get":{
+                "tags":["products"],
+                "summary":"get products",
+                "description":"user will get all products",
+                "security":[{ "JWT": {} }],
+                "responses":{
+                    "200":{
+                        "description":"ok"
+                    },
+                    "401":{
+                        "description":"unauthorize"
+                    }
+                }
+            },
+            "post":{
+                "tags":["add product"],
+                "summary":"add product here",
+                "description":"here you can add new product",
+                "security":[{ "JWT": {} }],
+                "parameters":[
+                    {
+                        "in":"body",
+                        "name":"body",
+                        "description":"add product",
+                        "required":true,
+                        "schema":{
+                            "type":"object",
+                            "properties":{
+                                "name":{
+                                    "type":"string",
+                                    "example":"iphone"
+                                },
+                                "desc":{
+                                    "type":"string",
+                                    "example":"iphone"
+                                },
+                                "price":{
+                                    "type":"string",
+                                    "example":"iphone"
+                                },
+                                "image":{
+                                    "type":"string"
+                                },
+                                "category":{
+                                    "type":"string",
+                                    "example":"iphone"
+                                },
+                                "size":{
+                                    "type":"string"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses":{
+                   "201":{
+                    "description":"product added successfully"
+                },
+                "400":{
+                    "description":"something went wrong"
+                }
+              }
+            }
+        },
+        "/api/products/{id}":{
+          "get":{
+            "tags":["products"],
+            "summary":"get products by id",
+            "description":"get a product by its id",
+            "security":[{ "JWT": {} }],
+            "parameters":[
+                {
+                    "name":"id",
+                    "in":"path",
+                    "description":"unique id of product",
+                    "type":"string"
+                }
+            ],
+            "responses":{
+                "200":{
+                    "description":"product fetched succesfully by its id"
+                },
+                "401":{
+                    "description":"product not found"
+                }
+            }
+          }
+        },
+         "/api/products/filter":{
+          "get":{
+            "tags":["products"],
+            "summary":"get products with filter",
+            "description":"get products by filtering",
+            "security":[{ "JWT": {} }],
+            "parameters":[
+                {
+                    "name":"maxPrice",
+                    "in":"query",
+                    "description":"give maxPrice",
+                    "required":false,
+                    "type":"string"
+                },
+                {
+                    "name":"minPrice",
+                    "in":"query",
+                    "description":"give minPrice",
+                    "required":false,
+                    "type":"string"
+                },
+                {
+                    "name":"category",
+                    "in":"query",
+                    "description":"give category of the products",
+                    "required":false,
+                    "type":"string"
+                }
+            ],
+            "responses":{
+                "200":{
+                    "description":"product fetched succesfully"
+                },
+                "401":{
+                    "description":"product not found"
+                }
+            }
+          }
+        },
+        "/api/users/signin":{
+            "post":{
+                "tags":["user"],
+                "summary":"login",
+                "description":"user login to get token",
+                "parameters":[
+                    {
+                        "in":"body",
+                        "name":"body",
+                        "description":"user credentials",
+                        "schema":{
+                            "type":"object",
+                            "properties":{
+                                "email":{
+                                    "type":"string"
+                                },
+                                "password":{
+                                    "type":"string"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses":{
+                    "200":{
+                        "description":"ok"
+                    },
+                    "400":{
+                        "description":"incorrect credentials"
+                    }
+                }
+            }
+        }
+    }
+}
