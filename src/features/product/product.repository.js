@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import { reviewSchema } from "./review.schema.js";
 import { productSchema } from "./product.schema.js";
 import { categorySchema } from "./category.schema.js";
+import redisClient from "../../config/redis.js";
 
 const productModel = new mongoose.model('product', productSchema);
 const reviewModel = new mongoose.model('review', reviewSchema);
@@ -52,18 +53,51 @@ class ProductRepository {
    }
 
    async getAllProducts() {
-      const db = getdb();
-      const collection = db.collection('products');
-      const products = await collection.find({}).toArray();
-      console.log(products);
-      return products;
+      try{
+         //get data from redis
+         const cached=await redisClient.get("products:all");
+         //checking if redis have data or not
+         if(cached){
+            console.log("data from redis");
+            return JSON.parse(cached);
+         }
+         //fetching data from mongodb
+         const products=await productModel.find();
+         //store data in redis
+         await redisClient.set(
+            "products:all",
+            JSON.stringify(products),
+            {
+               expiration:{
+                  type:"EX",
+                  value:3600
+               }
+            }
+         );
+         return products;
+      }catch(err){
+         throw err;
+      }
    }
 
    async getOneProduct(id) {
-      const db = getdb();
-      const collection = db.collection('products');
-      //here we can use findOne also but in that case dont need to use toArray() method
-      return await collection.find({ _id: new ObjectId(id) }).toArray();
+      const cached=await redisClient.get(`product:${id}`);
+      if(cached){
+         console.log("data from redis");
+         return JSON.parse(cached);
+      }
+      const product=await productModel.findOne({_id:new ObjectId(id)});
+      await redisClient.set(
+         `product:${id}`,
+         JSON.stringify(product),
+         {
+            expiration:{
+               type:"EX",
+               value:3600
+            }
+         }
+      )
+      return product;
    }
 
    async filterProducts(minPrice, category) {
@@ -167,7 +201,7 @@ class ProductRepository {
          const userReview = await reviewModel.findOne({ prodId: new ObjectId(prodId), userId: new ObjectId(userId) });
          if (userReview) {
             userReview.rating = rating;
-            userReview.save();
+            await userReview.save();
          } else {
             const newReview = new reviewModel(
                {
@@ -176,7 +210,7 @@ class ProductRepository {
                   rating: rating
                }
             )
-            newReview.save();
+            await newReview.save();
          }
       } catch (err) {
          throw err;
@@ -196,6 +230,17 @@ class ProductRepository {
             ]
          ).toArray();
       } catch (err) {
+         throw err;
+      }
+   }
+
+   async updateProduct(id,UpdatedData){
+      try{
+        return await productModel.findByIdAndUpdate(
+          id,
+          UpdatedData
+        );
+      }catch(err){
          throw err;
       }
    }

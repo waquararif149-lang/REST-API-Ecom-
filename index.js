@@ -16,6 +16,10 @@ import {conectToMongoose} from "./src/config/mongoose.js";
 import orderrouter from "./src/features/order/order.routes.js";
 import likeRouter from "./src/features/likes/like.route.js";
 import mongoose from "mongoose";
+import dotenv from "dotenv";
+import redisClient from "./src/config/redis.js";
+
+dotenv.config();
 
 //this all step is done to parse and import the swagger.json 
 const apiDocsPath = path.resolve(process.cwd(), "./swagger.json");
@@ -66,7 +70,8 @@ server.use((error,req,res,next)=>{
       res.status(500).send(error.message);
 });
 
-server.listen(3000, () => {
+server.listen(3000, async() => {
   console.log("server is listening on 3000");
-  conectToMongoose().catch(err => console.error('Failed to connect to MongoDB:', err));
+  await conectToMongoose().catch(err => console.error('Failed to connect to MongoDB:', err));
+  await redisClient.connect();
 });

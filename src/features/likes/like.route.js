@@ -8,4 +8,8 @@ likeRouter.post('/',(req,res)=>{
     likeControler.likeItem(req,res);
 })
 
+likeRouter.get('/getlike',(req,res)=>{
+    likeControler.getLikes(req,res);
+})
+
 export default likeRouter;

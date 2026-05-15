@@ -22,5 +22,8 @@ Router.get('/averagePrice',(req,res,next)=>{
 Router.get("/:id", (req,res)=>{
     productControler.getOneProduct(req,res);
 });
+Router.patch("/:id",(req,res)=>{
+    productControler.updateProduct(req,res);
+})
 
 export default Router;
