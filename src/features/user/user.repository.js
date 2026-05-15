@@ -13,7 +13,6 @@ export default class userRepository {
                 throw err;
         }
     }
-
     // async SignIn(email,password){
     //     try{
     //       return await UserModel.findOne({email,password});
