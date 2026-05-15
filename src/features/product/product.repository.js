@@ -18,14 +18,14 @@ class ProductRepository {
 
       const categoryIds = [];
       newProduct.categories=newProduct.categories.split(",").map(e=> e.trim());
-      // 1️⃣ Loop over category names
+      // Loop over category names
       for (const catName of newProduct.categories) {
 
          let category = await categoryModal.findOne({
             category: catName
          });
 
-         // 2️⃣ Create category if not exists
+         // Create category if not exists
          if (!category) {
             category = await categoryModal.create({
                category: catName,
@@ -36,14 +36,14 @@ class ProductRepository {
          categoryIds.push(category._id);
       }
 
-      // 3️⃣ Replace string categories with ObjectIds
+      // Replace string categories with ObjectIds
       newProduct.categories = categoryIds;
 
-      // 4️⃣ Create product
+      // Create product
       const product = new productModel(newProduct);
       await product.save();
 
-      // 5️⃣ Push productId into ALL categories
+      // Push productId into ALL categories
       await categoryModal.updateMany(
          { _id: { $in: categoryIds } },
          { $addToSet: { products: product._id } }
